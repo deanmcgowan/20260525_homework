@@ -115,13 +115,52 @@ gcloud auth configure-docker europe-north1-docker.pkg.dev
 För att testa Docker-containern lokalt innan deployment till Cloud Run:
 
 ```bash
-# Bygg imagen
-docker build -t stormaktstiden-local .
+# Steg 1: Stoppa och ta bort gamla containers (om de finns)
+docker stop stormaktstiden-local 2>/dev/null || true
+docker rm stormaktstiden-local 2>/dev/null || true
 
-# Kör containern
-docker run -p 8080:8080 stormaktstiden-local
+# Steg 2: Ta bort gamla images för att undvika cachade versioner
+docker rmi stormaktstiden-local 2>/dev/null || true
 
-# Öppna http://localhost:8080 i din webbläsare
+# Steg 3: Bygg imagen från scratch (utan cache)
+docker build --no-cache -t stormaktstiden-local .
+
+# Steg 4: Kör containern
+docker run -d -p 8080:8080 --name stormaktstiden-local stormaktstiden-local
+
+# Steg 5: Öppna http://localhost:8080 i din webbläsare
+```
+
+**Komplett skript för snabb ombyggnad:**
+```bash
+# Ett kommando som gör allt ovan
+docker stop stormaktstiden-local 2>/dev/null || true && \
+docker rm stormaktstiden-local 2>/dev/null || true && \
+docker rmi stormaktstiden-local 2>/dev/null || true && \
+docker build --no-cache -t stormaktstiden-local . && \
+docker run -d -p 8080:8080 --name stormaktstiden-local stormaktstiden-local && \
+echo "Container körs på http://localhost:8080"
+```
+
+**Användbara Docker-kommandon:**
+```bash
+# Visa container-loggar
+docker logs stormaktstiden-local
+
+# Följ loggar i realtid
+docker logs -f stormaktstiden-local
+
+# Stoppa containern
+docker stop stormaktstiden-local
+
+# Starta om containern
+docker restart stormaktstiden-local
+
+# Inspektera containern
+docker inspect stormaktstiden-local
+
+# Rensa alla oanvända Docker-resurser
+docker system prune -a
 ```
 
 **OBS:** Denna app är designad för lokal Docker-körning och deployment till Google Cloud Run.
@@ -229,32 +268,35 @@ gcloud artifacts repositories delete stormaktstiden --location=europe-north1
 │       └── test.js        # Test-läge
 └── assets/
     ├── icon-192.svg       # App-ikon 192x192
-    └── icon-512.svg       # App-ikon 512x512
+    ├── icon-512.svg       # App-ikon 512x512
+    └── audio/
+        ├── gustaf_ii_adolf.mp3  # Ljudberättelse Gustaf II Adolf
+        ├── kristina.mp3         # Ljudberättelse Kristina
+        ├── karl_x_gustav.mp3    # Ljudberättelse Karl X Gustav
+        ├── karl_xi.mp3          # Ljudberättelse Karl XI
+        └── karl_xii.mp3         # Ljudberättelse Karl XII
 ```
 
 ## 🎧 Ljudberättelser
 
-Appen inkluderar ett ljudberättelse-läge där elever kan lyssna på berättelser om de fem kungarna.
+Appen inkluderar ett ljudberättelse-läge där elever kan lyssna på högkvalitativa inspelningar om de fem kungarna.
 
 ### Nuvarande Implementation
-För närvarande använder appen Web Speech API för text-till-tal, vilket ger varierande kvalitet
-för svenska texter beroende på webbläsare och enhet.
+Appen använder professionellt genererade MP3-filer för varje kung, lagrade i `assets/audio/`:
+- `gustaf_ii_adolf.mp3` - Berättelse om Gustaf II Adolf
+- `kristina.mp3` - Berättelse om Drottning Kristina
+- `karl_x_gustav.mp3` - Berättelse om Karl X Gustav
+- `karl_xi.mp3` - Berättelse om Karl XI
+- `karl_xii.mp3` - Berättelse om Karl XII
 
-### Rekommenderad Implementation (Högkvalitativ Svenska)
-För bästa ljudkvalitet rekommenderas att generera förinspelade ljudfiler med en professionell
-svensk TTS-tjänst:
+Dessa ljudfiler genererades med högkvalitativ svensk text-till-tal (TTS) för optimal inlärningsupplevelse.
 
-1. **Se filen `audio_transcript.txt`** för kompletta transkript av alla ljudberättelser
-2. **Rekommenderade TTS-tjänster:**
-   - Google Cloud Text-to-Speech (sv-SE-Wavenet-A eller sv-SE-Wavenet-C)
-   - Amazon Polly (Astrid eller Elin)
-   - Microsoft Azure Speech (sv-SE-SofieNeural eller sv-SE-MattiasNeural)
-   - ElevenLabs (Svensk flerspråkig röst)
-
-3. **När du har genererat ljudfilerna:**
-   - Spara dem i mappen `/assets/audio/`
-   - Uppdatera `js/modes/audio.js` enligt instruktionerna i `audio_transcript.txt`
-   - Filnamn: `gustaf_ii_adolf.mp3`, `kristina.mp3`, `karl_x_gustav.mp3`, `karl_xi.mp3`, `karl_xii.mp3`
+### Implementation Detaljer
+Ljudläget använder HTML5 Audio API för att spela upp MP3-filerna direkt i webbläsaren, vilket ger:
+- Konsekvent ljudkvalitet på alla enheter
+- Pålitlig uppspelning utan internetanslutning (när appen är offline)
+- Bättre svensk uttal än standard Web Speech API
+- Stöd för paus, återupptagning och navigering mellan berättelser
 
 ## 💾 Datalagring
 
@@ -286,7 +328,7 @@ All data sparas lokalt på enheten och fungerar offline.
 - **Frontend**: Vanilla HTML, CSS, JavaScript
 - **Storage**: IndexedDB + LocalStorage
 - **PWA**: Service Worker med cache-first strategi
-- **Audio**: Web Speech API för text-till-tal
+- **Audio**: HTML5 Audio API med förinspelade MP3-filer
 - **Offline**: Service Worker cache
 
 ## 📱 Browser Support
