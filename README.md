@@ -58,7 +58,7 @@ Denna app hjälper elever att lära sig om Sveriges stormaktstid genom 8 olika e
 
 ## 🚀 Kom Igång
 
-### Öppna Appen
+### Öppna Appen Lokalt
 1. Öppna `index.html` i en webbläsare
 2. För bästa upplevelse, använd iPhone 12 eller liknande enhet
 3. Installera till hemskärmen för PWA-funktionalitet
@@ -73,12 +73,163 @@ python -m http.server 8000
 npx serve
 ```
 
+## 🐳 Deploying till Google Cloud Run
+
+Denna app kan enkelt deployas till Google Cloud Run för produktion. Följ dessa steg:
+
+### Förutsättningar
+- Google Cloud Project med fakturering aktiverad
+- Google Cloud SDK (gcloud) installerat
+- Docker installerat lokalt (för lokal testning)
+
+### Steg 1: Sätt upp Google Cloud Project
+
+```bash
+# Logga in på Google Cloud
+gcloud auth login
+
+# Sätt ditt projekt-ID (ersätt PROJECT_ID med ditt faktiska projekt-ID)
+export PROJECT_ID="ditt-projekt-id"
+gcloud config set project $PROJECT_ID
+
+# Aktivera nödvändiga API:er
+gcloud services enable cloudbuild.googleapis.com
+gcloud services enable run.googleapis.com
+gcloud services enable artifactregistry.googleapis.com
+```
+
+### Steg 2: Skapa Artifact Registry Repository
+
+```bash
+# Skapa ett Docker repository i Artifact Registry
+gcloud artifacts repositories create stormaktstiden \
+    --repository-format=docker \
+    --location=europe-north1 \
+    --description="Stormaktstiden PWA Docker images"
+
+# Konfigurera Docker för att autentisera med Artifact Registry
+gcloud auth configure-docker europe-north1-docker.pkg.dev
+```
+
+### Steg 3: Bygg och Pusha Docker Image
+
+```bash
+# Bygg Docker-imagen
+docker build -t europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest .
+
+# Testa imagen lokalt (valfritt)
+docker run -p 8080:8080 europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest
+# Öppna http://localhost:8080 i din webbläsare för att testa
+
+# Pusha imagen till Artifact Registry
+docker push europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest
+```
+
+### Steg 4: Deploya till Cloud Run
+
+```bash
+# Uppdatera cloudrun.yaml med ditt projekt-ID
+sed -i "s/PROJECT_ID/$PROJECT_ID/g" cloudrun.yaml
+
+# Deploya till Cloud Run
+gcloud run services replace cloudrun.yaml --region=europe-north1
+
+# Eller använd gcloud deploy direkt (enklare metod)
+gcloud run deploy stormaktstiden-app \
+    --image europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest \
+    --platform managed \
+    --region europe-north1 \
+    --allow-unauthenticated \
+    --memory 512Mi \
+    --cpu 1 \
+    --min-instances 0 \
+    --max-instances 10
+```
+
+### Steg 5: Få URL och Öppna Appen
+
+```bash
+# Hämta URL:en till din deployade app
+gcloud run services describe stormaktstiden-app \
+    --region=europe-north1 \
+    --format='value(status.url)'
+
+# Öppna appen i din webbläsare
+gcloud run services describe stormaktstiden-app \
+    --region=europe-north1 \
+    --format='value(status.url)' | xargs open
+```
+
+### Uppdatera Appen
+
+När du gör ändringar i koden, uppdatera deploymentent:
+
+```bash
+# Bygg ny version
+docker build -t europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest .
+
+# Pusha ny version
+docker push europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest
+
+# Deploya uppdateringen
+gcloud run deploy stormaktstiden-app \
+    --image europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest \
+    --region=europe-north1
+```
+
+### Lokal Docker Testning
+
+För att testa Docker-containern lokalt innan deployment:
+
+```bash
+# Bygg imagen
+docker build -t stormaktstiden-local .
+
+# Kör containern
+docker run -p 8080:8080 stormaktstiden-local
+
+# Öppna http://localhost:8080 i din webbläsare
+```
+
+### Kostnader
+
+Cloud Run använder en "pay-as-you-go" modell:
+- **Gratis tier**: 2 miljoner requests/månad
+- **Kostnad**: Endast när appen körs (ingen kostnad vid stillastående)
+- **Uppskattad kostnad**: För en liten educational app som denna, förmodligen inom gratis tier
+
+### Felsökning
+
+```bash
+# Visa loggar från Cloud Run
+gcloud run services logs read stormaktstiden-app --region=europe-north1
+
+# Beskriva servicen för att se status
+gcloud run services describe stormaktstiden-app --region=europe-north1
+```
+
+### Ta Bort Resurser
+
+Om du vill ta bort alla resurser:
+
+```bash
+# Ta bort Cloud Run service
+gcloud run services delete stormaktstiden-app --region=europe-north1
+
+# Ta bort Artifact Registry repository
+gcloud artifacts repositories delete stormaktstiden --location=europe-north1
+```
+
 ### Filstruktur
 ```
 /
 ├── index.html              # Huvudfil
 ├── manifest.json           # PWA manifest
 ├── service-worker.js       # Offline-funktionalitet
+├── Dockerfile              # Docker container konfiguration
+├── nginx.conf              # Nginx web server konfiguration
+├── cloudrun.yaml           # Google Cloud Run service definition
+├── .dockerignore           # Filer att exkludera från Docker build
 ├── styles/
 │   └── main.css           # All styling
 ├── js/
