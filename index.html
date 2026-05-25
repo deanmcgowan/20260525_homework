@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2563EB">
+    <title>Stormaktstiden - Lärarapp</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icon-192.svg">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen active">
+            <header class="app-header">
+                <h1>⚔️ Stormaktstiden</h1>
+                <p class="subtitle">1611-1718</p>
+            </header>
+
+            <div class="stats-bar">
+                <div class="stat">
+                    <span class="stat-icon">🔥</span>
+                    <span class="stat-value" id="streak-count">0</span>
+                    <span class="stat-label">dagar</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-value" id="star-count">0</span>
+                    <span class="stat-label">stjärnor</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">📊</span>
+                    <span class="stat-value" id="accuracy">0%</span>
+                    <span class="stat-label">korrekt</span>
+                </div>
+            </div>
+
+            <div class="quick-start">
+                <button id="quick-start-btn" class="btn-primary btn-large">
+                    ⚡ Snabbstart
+                </button>
+                <p class="hint">Rekommenderat för dig just nu</p>
+            </div>
+
+            <div class="learning-modes">
+                <h2>Välj inlärningsläge</h2>
+                <div class="mode-grid">
+                    <button class="mode-card" data-mode="quiz">
+                        <span class="mode-icon">❓</span>
+                        <h3>Snabbquiz</h3>
+                        <p>3-5 min</p>
+                    </button>
+                    <button class="mode-card" data-mode="timeline">
+                        <span class="mode-icon">📅</span>
+                        <h3>Tidslinjen</h3>
+                        <p>5-7 min</p>
+                    </button>
+                    <button class="mode-card" data-mode="cards">
+                        <span class="mode-icon">👑</span>
+                        <h3>Kungens Kort</h3>
+                        <p>4-6 min</p>
+                    </button>
+                    <button class="mode-card" data-mode="story">
+                        <span class="mode-icon">📖</span>
+                        <h3>Berättelse</h3>
+                        <p>7-10 min</p>
+                    </button>
+                    <button class="mode-card" data-mode="match">
+                        <span class="mode-icon">⚡</span>
+                        <h3>Snabbmatchning</h3>
+                        <p>3-4 min</p>
+                    </button>
+                    <button class="mode-card" data-mode="draw">
+                        <span class="mode-icon">✏️</span>
+                        <h3>Rita & Anteckna</h3>
+                        <p>5-8 min</p>
+                    </button>
+                    <button class="mode-card" data-mode="audio">
+                        <span class="mode-icon">🎧</span>
+                        <h3>Ljudberättelse</h3>
+                        <p>5-10 min</p>
+                    </button>
+                    <button class="mode-card" data-mode="test">
+                        <span class="mode-icon">📝</span>
+                        <h3>Provtest</h3>
+                        <p>10-15 min</p>
+                    </button>
+                </div>
+            </div>
+
+            <button id="progress-btn" class="btn-secondary">
+                📈 Visa Framsteg
+            </button>
+        </div>
+
+        <!-- Quiz Mode -->
+        <div id="quiz-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="quiz-progress"></div>
+                </div>
+                <div class="timer" id="quiz-timer">5:00</div>
+            </div>
+
+            <div class="quiz-content">
+                <div class="question-number" id="question-number">Fråga 1 av 5</div>
+                <div class="question-text" id="question-text"></div>
+                <div class="answer-options" id="answer-options"></div>
+            </div>
+
+            <div class="quiz-result hidden" id="quiz-result">
+                <div class="result-icon" id="result-icon"></div>
+                <h2 id="result-title"></h2>
+                <p id="result-message"></p>
+                <button class="btn-primary" id="next-question-btn">Nästa Fråga</button>
+            </div>
+        </div>
+
+        <!-- Timeline Mode -->
+        <div id="timeline-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+                <h2>Tidslinjen - Stormaktstiden</h2>
+            </div>
+
+            <div class="timeline-instructions">
+                <p>Dra händelserna till rätt plats på tidslinjen!</p>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                <div class="timeline-events" id="timeline-events"></div>
+            </div>
+
+            <div class="draggable-events" id="draggable-events"></div>
+
+            <button class="btn-primary" id="check-timeline-btn">Kontrollera</button>
+        </div>
+
+        <!-- Cards Mode -->
+        <div id="cards-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+                <div class="cards-progress" id="cards-progress">0/5</div>
+            </div>
+
+            <div class="card-container">
+                <div class="flashcard" id="flashcard">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <h2 id="card-title"></h2>
+                            <p id="card-years"></p>
+                            <p class="tap-hint">Tryck för att vända</p>
+                        </div>
+                        <div class="flashcard-back">
+                            <div id="card-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn-card btn-review" id="review-again-btn">
+                    🔄 Repetera
+                </button>
+                <button class="btn-card btn-know" id="know-it-btn">
+                    ✅ Kan det!
+                </button>
+            </div>
+        </div>
+
+        <!-- Story Mode -->
+        <div id="story-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+                <div class="story-progress" id="story-progress"></div>
+            </div>
+
+            <div class="story-content">
+                <div class="story-text" id="story-text"></div>
+                <div class="story-choices" id="story-choices"></div>
+            </div>
+        </div>
+
+        <!-- Match Mode -->
+        <div id="match-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+                <div class="match-timer" id="match-timer">0:00</div>
+                <div class="match-score" id="match-score">0/10</div>
+            </div>
+
+            <div class="match-container">
+                <div class="match-column" id="match-left"></div>
+                <div class="match-column" id="match-right"></div>
+            </div>
+        </div>
+
+        <!-- Draw Mode -->
+        <div id="draw-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+                <button class="btn-clear" id="clear-canvas-btn">🗑️ Rensa</button>
+            </div>
+
+            <div class="draw-prompt" id="draw-prompt"></div>
+
+            <canvas id="drawing-canvas"></canvas>
+
+            <div class="draw-tools">
+                <button class="tool-btn active" data-color="#1F2937">✏️</button>
+                <button class="tool-btn" data-color="#EF4444">🔴</button>
+                <button class="tool-btn" data-color="#3B82F6">🔵</button>
+                <button class="tool-btn" data-color="#10B981">🟢</button>
+                <button class="tool-btn" data-color="#F59E0B">🟡</button>
+            </div>
+
+            <button class="btn-primary" id="save-drawing-btn">💾 Spara Anteckning</button>
+        </div>
+
+        <!-- Audio Mode -->
+        <div id="audio-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+            </div>
+
+            <div class="audio-content">
+                <div class="audio-image" id="audio-image"></div>
+                <h2 id="audio-title"></h2>
+                <div class="audio-text" id="audio-text"></div>
+                <div class="audio-controls">
+                    <button class="btn-audio" id="play-audio-btn">▶️ Spela upp</button>
+                    <button class="btn-audio" id="pause-audio-btn" style="display:none;">⏸️ Pausa</button>
+                </div>
+                <div class="audio-navigation">
+                    <button class="btn-secondary" id="prev-audio-btn">← Föregående</button>
+                    <button class="btn-secondary" id="next-audio-btn">Nästa →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Mode -->
+        <div id="test-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+                <div class="test-progress" id="test-progress">0/29</div>
+            </div>
+
+            <div class="test-content">
+                <div class="test-question" id="test-question"></div>
+                <textarea class="test-answer" id="test-answer" placeholder="Skriv ditt svar här..."></textarea>
+                <div class="test-navigation">
+                    <button class="btn-secondary" id="prev-test-btn">← Föregående</button>
+                    <button class="btn-primary" id="next-test-btn">Nästa →</button>
+                </div>
+            </div>
+
+            <button class="btn-primary btn-large" id="finish-test-btn" style="display:none;">✅ Avsluta Test</button>
+        </div>
+
+        <!-- Progress Screen -->
+        <div id="progress-screen" class="screen">
+            <div class="screen-header">
+                <button class="btn-back">← Tillbaka</button>
+                <h2>Dina Framsteg</h2>
+            </div>
+
+            <div class="progress-content">
+                <div class="achievement-grid" id="achievement-grid"></div>
+
+                <div class="king-mastery">
+                    <h3>Bemästrande per kung</h3>
+                    <div id="king-mastery-list"></div>
+                </div>
+
+                <div class="stats-detail">
+                    <h3>Statistik</h3>
+                    <div id="detailed-stats"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/modes/quiz.js"></script>
+    <script src="js/modes/timeline.js"></script>
+    <script src="js/modes/cards.js"></script>
+    <script src="js/modes/story.js"></script>
+    <script src="js/modes/match.js"></script>
+    <script src="js/modes/draw.js"></script>
+    <script src="js/modes/audio.js"></script>
+    <script src="js/modes/test.js"></script>
+    <script src="js/progress.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
