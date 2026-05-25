@@ -1,8 +1,9 @@
-// Timeline Mode Implementation
+// Timeline Mode Implementation - Reordering Events
 
 let currentTimeline = {
     events: [],
-    userPlacements: [],
+    shuffledEvents: [],
+    selectedEventIndex: null,
     completed: false
 };
 
@@ -12,229 +13,146 @@ function initTimelineMode() {
     selectedEvents.sort((a, b) => a.year - b.year); // Sort by year for correct answer
 
     currentTimeline.events = selectedEvents;
-    currentTimeline.userPlacements = [];
+
+    // Shuffle the events for display
+    currentTimeline.shuffledEvents = shuffleArray([...selectedEvents]);
+    currentTimeline.selectedEventIndex = null;
     currentTimeline.completed = false;
 
     renderTimeline();
-    renderDraggableEvents();
 }
 
 function renderTimeline() {
     const container = document.getElementById('timeline-events');
     container.innerHTML = '';
 
-    // Create drop zones for each event
-    currentTimeline.events.forEach((event, index) => {
+    // Create the timeline with shuffled events already placed
+    currentTimeline.shuffledEvents.forEach((event, index) => {
         const eventDiv = document.createElement('div');
         eventDiv.className = 'timeline-event';
         eventDiv.dataset.index = index;
 
         const yearDiv = document.createElement('div');
         yearDiv.className = 'timeline-year';
-        yearDiv.textContent = event.year;
+        yearDiv.textContent = '?'; // Don't show the year
 
         const dotDiv = document.createElement('div');
         dotDiv.className = 'timeline-dot';
 
         const contentDiv = document.createElement('div');
-        contentDiv.className = 'timeline-content drop-zone';
-        contentDiv.dataset.year = event.year;
-        contentDiv.textContent = '📍 Välj händelse nedan';
+        contentDiv.className = 'timeline-content clickable-event';
+        contentDiv.dataset.eventYear = event.year;
+        contentDiv.dataset.eventText = event.event;
+        contentDiv.textContent = event.event;
 
-        // Add click handler for mobile-friendly interaction
-        contentDiv.addEventListener('click', () => handleDropZoneClick(contentDiv));
+        // Add click handler for selection/swapping
+        contentDiv.addEventListener('click', () => handleEventSelection(index));
 
         eventDiv.appendChild(yearDiv);
         eventDiv.appendChild(dotDiv);
         eventDiv.appendChild(contentDiv);
         container.appendChild(eventDiv);
     });
+
+    // Hide draggable events container (not needed anymore)
+    const draggableContainer = document.getElementById('draggable-events');
+    if (draggableContainer) {
+        draggableContainer.style.display = 'none';
+    }
 }
 
-function renderDraggableEvents() {
-    const container = document.getElementById('draggable-events');
-    container.innerHTML = '';
+function handleEventSelection(index) {
+    const eventElements = document.querySelectorAll('.timeline-content.clickable-event');
 
-    // Shuffle events
-    const shuffled = shuffleArray([...currentTimeline.events]);
+    // If no event is selected, select this one
+    if (currentTimeline.selectedEventIndex === null) {
+        currentTimeline.selectedEventIndex = index;
+        eventElements[index].classList.add('selected');
+        eventElements[index].style.background = '#FEF3C7';
+        eventElements[index].style.borderColor = '#F59E0B';
 
-    shuffled.forEach((event, index) => {
-        const eventDiv = document.createElement('div');
-        eventDiv.className = 'draggable-event';
-        eventDiv.dataset.year = event.year;
-        eventDiv.dataset.event = event.event;
-        eventDiv.textContent = event.event;
-
-        // Use click/tap instead of drag for better mobile support
-        eventDiv.addEventListener('click', () => handleEventClick(eventDiv));
-
-        container.appendChild(eventDiv);
-    });
-}
-
-let draggedElement = null;
-let selectedEvent = null;
-
-function handleEventClick(eventDiv) {
-    // If an event is already selected, deselect it
-    if (selectedEvent === eventDiv) {
-        eventDiv.classList.remove('selected');
-        selectedEvent = null;
-        // Deselect all drop zones
-        document.querySelectorAll('.drop-zone').forEach(zone => {
-            zone.classList.remove('ready-for-drop');
+        // Highlight other events as swappable
+        eventElements.forEach((el, i) => {
+            if (i !== index) {
+                el.classList.add('swappable');
+                el.style.opacity = '0.6';
+            }
         });
-        return;
+
+        vibrate(30);
     }
+    // If the same event is clicked, deselect it
+    else if (currentTimeline.selectedEventIndex === index) {
+        eventElements[index].classList.remove('selected');
+        eventElements[index].style.background = '';
+        eventElements[index].style.borderColor = '';
 
-    // Deselect previously selected event
-    if (selectedEvent) {
-        selectedEvent.classList.remove('selected');
+        // Remove swappable highlighting
+        eventElements.forEach(el => {
+            el.classList.remove('swappable');
+            el.style.opacity = '';
+        });
+
+        currentTimeline.selectedEventIndex = null;
+        vibrate(30);
     }
+    // If a different event is clicked, swap them
+    else {
+        const firstIndex = currentTimeline.selectedEventIndex;
+        const secondIndex = index;
 
-    // Select this event
-    selectedEvent = eventDiv;
-    eventDiv.classList.add('selected');
+        // Swap events in the array
+        const temp = currentTimeline.shuffledEvents[firstIndex];
+        currentTimeline.shuffledEvents[firstIndex] = currentTimeline.shuffledEvents[secondIndex];
+        currentTimeline.shuffledEvents[secondIndex] = temp;
 
-    // Highlight drop zones
-    document.querySelectorAll('.drop-zone').forEach(zone => {
-        if (!zone.dataset.placedYear) {
-            zone.classList.add('ready-for-drop');
-            zone.textContent = '👆 Tryck här för att placera';
-        }
-    });
+        // Clear selection
+        currentTimeline.selectedEventIndex = null;
 
-    vibrate(30);
-}
+        vibrate(50);
 
-function handleDropZoneClick(dropZone) {
-    // Only allow placement if a zone hasn't been filled and an event is selected
-    if (dropZone.dataset.placedYear || !selectedEvent) {
-        return;
-    }
+        // Re-render timeline
+        renderTimeline();
 
-    // Place the selected event in this drop zone
-    dropZone.textContent = selectedEvent.dataset.event;
-    dropZone.dataset.placedYear = selectedEvent.dataset.year;
-    dropZone.style.background = '#EFF6FF';
-    dropZone.classList.remove('ready-for-drop');
-
-    // Remove the event from the draggable list
-    selectedEvent.remove();
-    selectedEvent = null;
-
-    // Reset all drop zone highlights
-    document.querySelectorAll('.drop-zone').forEach(zone => {
-        zone.classList.remove('ready-for-drop');
-        if (!zone.dataset.placedYear) {
-            zone.textContent = '📍 Välj händelse nedan';
-        }
-    });
-
-    vibrate(50);
-
-    // Check if all placed
-    checkTimelineCompletion();
-}
-
-function handleDragStart(e) {
-    draggedElement = e.target;
-    e.target.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', e.target.innerHTML);
-}
-
-function handleDragOver(e) {
-    if (e.preventDefault) {
-        e.preventDefault();
-    }
-    e.dataTransfer.dropEffect = 'move';
-    return false;
-}
-
-function handleDrop(e) {
-    if (e.stopPropagation) {
-        e.stopPropagation();
-    }
-
-    if (draggedElement) {
-        const dropZone = e.target;
-        dropZone.textContent = draggedElement.dataset.event;
-        dropZone.dataset.placedYear = draggedElement.dataset.year;
-        dropZone.style.background = '#EFF6FF';
-
-        draggedElement.remove();
-        draggedElement.classList.remove('dragging');
-        draggedElement = null;
-
-        // Check if all placed
-        checkTimelineCompletion();
-    }
-
-    return false;
-}
-
-// Touch handlers for mobile (kept for backwards compatibility but simplified)
-let touchedElement = null;
-let touchStartPos = {};
-
-function handleTouchStart(e) {
-    touchedElement = e.target;
-    const touch = e.touches[0];
-    touchStartPos = { x: touch.clientX, y: touch.clientY };
-    touchedElement.classList.add('dragging');
-}
-
-function handleTouchMove(e) {
-    e.preventDefault();
-}
-
-function handleTouchEnd(e) {
-    if (!touchedElement) return;
-
-    const touch = e.changedTouches[0];
-    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-
-    if (dropTarget && dropTarget.classList.contains('drop-zone')) {
-        dropTarget.textContent = touchedElement.dataset.event;
-        dropTarget.dataset.placedYear = touchedElement.dataset.year;
-        dropTarget.style.background = '#EFF6FF';
-
-        touchedElement.remove();
-        checkTimelineCompletion();
-    }
-
-    touchedElement.classList.remove('dragging');
-    touchedElement = null;
-}
-
-function checkTimelineCompletion() {
-    const dropZones = document.querySelectorAll('.drop-zone');
-    const allPlaced = Array.from(dropZones).every(zone => zone.dataset.placedYear);
-
-    if (allPlaced) {
+        // Enable check button (can check at any time)
         document.getElementById('check-timeline-btn').disabled = false;
         document.getElementById('check-timeline-btn').style.opacity = '1';
     }
 }
 
 async function checkTimelineAnswers() {
-    const dropZones = document.querySelectorAll('.drop-zone');
+    const eventElements = document.querySelectorAll('.timeline-content.clickable-event');
     let correct = 0;
-    let total = dropZones.length;
+    let total = currentTimeline.shuffledEvents.length;
 
-    dropZones.forEach(zone => {
-        const placedYear = parseInt(zone.dataset.placedYear);
-        const correctYear = parseInt(zone.dataset.year);
+    // Check if events are in correct chronological order
+    currentTimeline.shuffledEvents.forEach((event, index) => {
+        const expectedEvent = currentTimeline.events[index];
+        const isCorrect = event.year === expectedEvent.year;
 
-        if (placedYear === correctYear) {
+        if (isCorrect) {
             correct++;
-            zone.style.background = '#ECFDF5';
-            zone.style.borderColor = '#10B981';
+            eventElements[index].style.background = '#ECFDF5';
+            eventElements[index].style.borderColor = '#10B981';
+
+            // Now show the correct year
+            const yearDiv = eventElements[index].closest('.timeline-event').querySelector('.timeline-year');
+            yearDiv.textContent = event.year;
+            yearDiv.style.color = '#10B981';
         } else {
-            zone.style.background = '#FEF2F2';
-            zone.style.borderColor = '#EF4444';
+            eventElements[index].style.background = '#FEF2F2';
+            eventElements[index].style.borderColor = '#EF4444';
+
+            // Show the actual year (which is wrong position)
+            const yearDiv = eventElements[index].closest('.timeline-event').querySelector('.timeline-year');
+            yearDiv.textContent = event.year;
+            yearDiv.style.color = '#EF4444';
         }
+
+        // Remove click handlers
+        eventElements[index].classList.remove('clickable-event', 'selected', 'swappable');
+        eventElements[index].style.cursor = 'default';
+        eventElements[index].replaceWith(eventElements[index].cloneNode(true));
     });
 
     // Add stars based on performance

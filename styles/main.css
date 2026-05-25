@@ -427,6 +427,32 @@ body {
     margin-left: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.timeline-content.clickable-event {
+    cursor: pointer;
+    border: 2px solid #E5E7EB;
+}
+
+.timeline-content.clickable-event:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.timeline-content.clickable-event:active {
+    transform: translateY(0);
+}
+
+.timeline-content.selected {
+    border-color: #F59E0B;
+    background: #FEF3C7;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+
+.timeline-content.swappable {
+    opacity: 0.6;
+    border-color: #9CA3AF;
 }
 
 .draggable-events {
