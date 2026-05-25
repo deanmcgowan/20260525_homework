@@ -4,13 +4,40 @@ let currentAudio = {
     stories: [],
     currentIndex: 0,
     isPlaying: false,
-    utterance: null
+    audioElement: null
 };
 
 function initAudioMode() {
     currentAudio.stories = [...AUDIO_STORIES];
     currentAudio.currentIndex = 0;
     currentAudio.isPlaying = false;
+
+    // Create audio element if it doesn't exist
+    if (!currentAudio.audioElement) {
+        currentAudio.audioElement = new Audio();
+
+        // Event handlers for the audio element
+        currentAudio.audioElement.addEventListener('ended', () => {
+            currentAudio.isPlaying = false;
+            document.getElementById('play-audio-btn').style.display = 'inline-block';
+            document.getElementById('pause-audio-btn').style.display = 'none';
+
+            // Auto-advance to next story
+            if (currentAudio.currentIndex < currentAudio.stories.length - 1) {
+                setTimeout(() => {
+                    currentAudio.currentIndex++;
+                    showAudioStory();
+                }, 1500);
+            }
+        });
+
+        currentAudio.audioElement.addEventListener('error', (e) => {
+            showToast('⚠️ Ett fel uppstod vid uppspelning', 'error');
+            currentAudio.isPlaying = false;
+            document.getElementById('play-audio-btn').style.display = 'inline-block';
+            document.getElementById('pause-audio-btn').style.display = 'none';
+        });
+    }
 
     showAudioStory();
 }
@@ -48,100 +75,59 @@ function showAudioStory() {
 }
 
 function playAudio() {
-    if (!window.speechSynthesis) {
-        showToast('⚠️ Text-till-tal stöds inte i din webbläsare', 'error');
+    const story = currentAudio.stories[currentAudio.currentIndex];
+
+    // Map king IDs to audio file names
+    const audioFiles = {
+        'gustaf-ii-adolf': 'gustaf_ii_adolf.mp3',
+        'kristina': 'kristina.mp3',
+        'karl-x-gustav': 'karl_x_gustav.mp3',
+        'karl-xi': 'karl_xi.mp3',
+        'karl-xii': 'karl_xii.mp3'
+    };
+
+    const audioFile = audioFiles[story.kingId];
+
+    if (!audioFile) {
+        showToast('⚠️ Ljudfil hittades inte', 'error');
         return;
     }
 
-    const story = currentAudio.stories[currentAudio.currentIndex];
+    // Set the audio source
+    currentAudio.audioElement.src = `assets/audio/${audioFile}`;
 
-    // Create utterance
-    currentAudio.utterance = new SpeechSynthesisUtterance(story.text);
-    currentAudio.utterance.lang = 'sv-SE';
-    currentAudio.utterance.rate = 0.85; // Slightly slower for better comprehension
-    currentAudio.utterance.pitch = 1;
+    // Play the audio
+    currentAudio.audioElement.play()
+        .then(() => {
+            currentAudio.isPlaying = true;
 
-    // Event handlers
-    currentAudio.utterance.onend = () => {
-        currentAudio.isPlaying = false;
-        document.getElementById('play-audio-btn').style.display = 'inline-block';
-        document.getElementById('pause-audio-btn').style.display = 'none';
-
-        // Auto-advance to next story
-        if (currentAudio.currentIndex < currentAudio.stories.length - 1) {
-            setTimeout(() => {
-                currentAudio.currentIndex++;
-                showAudioStory();
-            }, 1500);
-        }
-    };
-
-    currentAudio.utterance.onerror = () => {
-        showToast('⚠️ Ett fel uppstod vid uppspelning', 'error');
-        currentAudio.isPlaying = false;
-        document.getElementById('play-audio-btn').style.display = 'inline-block';
-        document.getElementById('pause-audio-btn').style.display = 'none';
-    };
-
-    // Start playing
-    window.speechSynthesis.speak(currentAudio.utterance);
-    currentAudio.isPlaying = true;
-
-    // Update UI
-    document.getElementById('play-audio-btn').style.display = 'none';
-    document.getElementById('pause-audio-btn').style.display = 'inline-block';
-
-    // Highlight text as it's being read (optional enhancement)
-    highlightText();
+            // Update UI
+            document.getElementById('play-audio-btn').style.display = 'none';
+            document.getElementById('pause-audio-btn').style.display = 'inline-block';
+        })
+        .catch(error => {
+            showToast('⚠️ Ett fel uppstod vid uppspelning', 'error');
+            console.error('Audio playback error:', error);
+        });
 }
 
 function pauseAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+    if (currentAudio.audioElement && currentAudio.isPlaying) {
+        currentAudio.audioElement.pause();
+        currentAudio.isPlaying = false;
+
+        // Update UI
+        document.getElementById('play-audio-btn').style.display = 'inline-block';
+        document.getElementById('pause-audio-btn').style.display = 'none';
     }
-
-    currentAudio.isPlaying = false;
-
-    // Update UI
-    document.getElementById('play-audio-btn').style.display = 'inline-block';
-    document.getElementById('pause-audio-btn').style.display = 'none';
 }
 
 function stopAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+    if (currentAudio.audioElement) {
+        currentAudio.audioElement.pause();
+        currentAudio.audioElement.currentTime = 0;
     }
     currentAudio.isPlaying = false;
-}
-
-function highlightText() {
-    const textEl = document.getElementById('audio-text');
-    const text = textEl.textContent;
-
-    // Split into sentences
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    let currentSentence = 0;
-
-    const interval = setInterval(() => {
-        if (!currentAudio.isPlaying || currentSentence >= sentences.length) {
-            clearInterval(interval);
-            textEl.innerHTML = text; // Reset
-            return;
-        }
-
-        // Highlight current sentence
-        let html = '';
-        sentences.forEach((sentence, index) => {
-            if (index === currentSentence) {
-                html += `<span style="background: #FEF3C7; padding: 2px 4px; border-radius: 3px;">${sentence}</span>`;
-            } else {
-                html += sentence;
-            }
-        });
-        textEl.innerHTML = html;
-
-        currentSentence++;
-    }, 3000); // Approximate time per sentence
 }
 
 function prevStory() {
