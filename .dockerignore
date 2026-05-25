@@ -1,0 +1,11 @@
+# Git files
+.git
+.gitignore
+
+# Documentation (not needed in container)
+PROJEKTRAPPORT.md
+raw_input_material/
+
+# Docker files (no need to copy into container)
+Dockerfile
+.dockerignore
