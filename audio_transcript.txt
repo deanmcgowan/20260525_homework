@@ -1,0 +1,198 @@
+===========================================
+STORMAKTSTIDEN - LJUDBERÄTTELSE TRANSKRIPT
+===========================================
+
+INSTRUKTIONER FÖR LJUDGENERERING
+---------------------------------
+Dessa texter ska konverteras till svenska ljudfiler med hjälp av en högkvalitativ
+svensk Text-to-Speech (TTS) tjänst. Rekommenderade tjänster:
+
+1. Google Cloud Text-to-Speech - Svensk röst (sv-SE-Wavenet-A eller sv-SE-Wavenet-C)
+2. Amazon Polly - Svensk röst (Astrid eller Elin)
+3. Microsoft Azure Speech - Svensk röst (sv-SE-SofieNeural eller sv-SE-MattiasNeural)
+4. ElevenLabs - Svensk flerspråkig röst för naturligt ljud
+
+FILNAMN OCH FORMAT:
+- Spara filer som MP3 eller OGG format
+- Bitrate: minst 128 kbps för bra kvalitet
+- Filnamn: gustaf_ii_adolf.mp3, kristina.mp3, karl_x_gustav.mp3, karl_xi.mp3, karl_xii.mp3
+
+FÖR ATT IMPLEMENTERA:
+1. Generera ljudfiler från texterna nedan med en av de rekommenderade tjänsterna
+2. Spara filerna i mappen: /assets/audio/
+3. Uppdatera filen: js/modes/audio.js
+   - Ersätt Web Speech API-koden med HTML5 Audio-elementhantering
+   - Se exempel nedan för hur koden ska uppdateras
+
+===========================================
+
+LJUDFIL 1: Gustaf II Adolf
+FILNAMN: gustaf_ii_adolf.mp3
+LÄNGD: Ca 2 minuter
+---------------------------------
+Gustaf den andre Adolf, även känd som Lejonet från Norden, var kung av Sverige mellan
+sexton elva och sexton trettiotvå. Han blev kung när han bara var sjutton år och förde
+Sverige in i trettioåriga kriget på protestanternas sida.
+
+Gustaf den andre Adolf var känd som "Lejonet från Norden". Han förvandlade Sverige
+till en stormakt genom att modernisera den svenska armén med nya taktiker och vapen.
+Han vann flera stora slag i trettioåriga kriget, särskilt den stora segern vid
+Breitenfeld år sexton trettioett.
+
+Tyvärr dog Gustaf den andre Adolf i slaget vid Lützen år sexton trettiotvå. Han var
+en av Sveriges mest kända kungar och hans insatser gjorde Sverige till en mäktig
+stormakt i Europa.
+
+===========================================
+
+LJUDFIL 2: Kristina
+FILNAMN: kristina.mp3
+LÄNGD: Ca 2 minuter
+---------------------------------
+Drottning Kristina var Sveriges drottning mellan sexton trettiotvå och sexton
+femtiofyra. Hon blev drottning när hon bara var sex år gammal efter att hennes
+far Gustaf den andre Adolf dog i slaget vid Lützen.
+
+Kristina var mycket intelligent och intresserad av konst, vetenskap och filosofi.
+Under hennes tid som drottning främjade hon kulturen i Sverige. År sexton fyrtiåtta
+avslutades trettioåriga kriget med Westfaliska freden, och Sverige fick viktiga
+områden i Tyskland.
+
+År sexton femtiofyra abdikerade Kristina - det betyder att hon lämnade tronen
+frivilligt. Hon lämnade Sverige och konverterade till katolicismen. Hennes kusin
+Karl den tionde Gustav blev kung efter henne. Kristina gifte sig aldrig.
+
+===========================================
+
+LJUDFIL 3: Karl X Gustav
+FILNAMN: karl_x_gustav.mp3
+LÄNGD: Ca 2 minuter
+---------------------------------
+Karl den tionde Gustav, även känd som Krigarkungen, var kung av Sverige mellan
+sexton femtiofyra och sexton sextio. Han var Kristinas kusin som blev kung när
+hon abdikerade.
+
+Karl den tionde Gustav var känd för sina danska krig. Den mest berömda händelsen
+var när den svenska armén gick över Stora Bält när det var fruset - något som var
+mycket vågat och modigt!
+
+År sexton femtioåtta slöts freden i Roskilde. Genom denna fred fick Sverige Skåne,
+Blekinge, Halland och Bohuslän från Danmark. Detta expanderade Sveriges territorium
+markant. Karl den tionde Gustav dog av lunginflammation år sexton sextio.
+
+===========================================
+
+LJUDFIL 4: Karl XI
+FILNAMN: karl_xi.mp3
+LÄNGD: Ca 2 minuter
+---------------------------------
+Karl den elfte, även känd som Den envåldige härskaren, var kung av Sverige mellan
+sexton sextio och sexton nittiosju. Han blev kung när han bara var fyra år gammal,
+så förmyndare styrde landet först tills han blev äldre.
+
+Karl den elfte införde envälde, vilket också kallas absolutism. Det betydde att
+kungen fick all makt och inte behövde lyssna på riksdagen. Han tog tillbaka mark
+från adeln genom reduktionen, vilket minskade adelns makt.
+
+En viktig reform var att Karl den elfte ville att alla svenskar skulle lära sig läsa.
+År sexton åttiåsex infördes en lag om läskunnighet. Präster kontrollerade att folk
+kunde läsa genom så kallade husförhör. Han stärkte också den svenska armén genom
+indelningsverket.
+
+===========================================
+
+LJUDFIL 5: Karl XII
+FILNAMN: karl_xii.mp3
+LÄNGD: Ca 2 minuter
+---------------------------------
+Karl den tolfte, även känd som Hjältekungen, var kung av Sverige mellan sexton
+nittiåsju och sjutton arton. Han blev kung när han var femton år gammal och är
+känd som en krigarkunng.
+
+År sjutton hundra började det stora nordiska kriget när Danmark, Polen och Ryssland
+attackerade Sverige samtidigt. Karl den tolfte var en mycket skicklig militär strateg
+och vann flera tidiga segrar.
+
+Men år sjutton hundra nio förlorade Sverige det viktiga slaget vid Poltava mot
+Ryssland. Detta var början på slutet för Sveriges stormaktstid. Karl den tolfte
+bodde många år utomlands efter detta.
+
+Den trettionde november år sjutton arton dog Karl den tolfte vid Fredrikstens
+fästning i Norge. Med hans död tog Sveriges stormaktstid slut. Sverige förlorade
+mycket territorium och makten gick från kungen tillbaka till riksdagen.
+
+===========================================
+
+EXEMPEL PÅ KOD-UPPDATERING FÖR js/modes/audio.js
+------------------------------------------------
+
+Ersätt funktionerna playAudio() och pauseAudio() med följande:
+
+let audioPlayer = null;
+
+function playAudio() {
+    const story = currentAudio.stories[currentAudio.currentIndex];
+
+    // Skapa eller återanvänd audio-element
+    if (!audioPlayer) {
+        audioPlayer = new Audio();
+        audioPlayer.onended = () => {
+            currentAudio.isPlaying = false;
+            document.getElementById('play-audio-btn').style.display = 'inline-block';
+            document.getElementById('pause-audio-btn').style.display = 'none';
+
+            // Auto-advance to next story
+            if (currentAudio.currentIndex < currentAudio.stories.length - 1) {
+                setTimeout(() => {
+                    currentAudio.currentIndex++;
+                    showAudioStory();
+                }, 1500);
+            }
+        };
+
+        audioPlayer.onerror = () => {
+            showToast('⚠️ Ett fel uppstod vid uppspelning', 'error');
+            currentAudio.isPlaying = false;
+            document.getElementById('play-audio-btn').style.display = 'inline-block';
+            document.getElementById('pause-audio-btn').style.display = 'none';
+        };
+    }
+
+    // Sätt rätt ljudfil baserat på kingId
+    const audioFiles = {
+        'gustaf-ii-adolf': 'assets/audio/gustaf_ii_adolf.mp3',
+        'kristina': 'assets/audio/kristina.mp3',
+        'karl-x-gustav': 'assets/audio/karl_x_gustav.mp3',
+        'karl-xi': 'assets/audio/karl_xi.mp3',
+        'karl-xii': 'assets/audio/karl_xii.mp3'
+    };
+
+    audioPlayer.src = audioFiles[story.kingId];
+    audioPlayer.play();
+    currentAudio.isPlaying = true;
+
+    // Update UI
+    document.getElementById('play-audio-btn').style.display = 'none';
+    document.getElementById('pause-audio-btn').style.display = 'inline-block';
+}
+
+function pauseAudio() {
+    if (audioPlayer) {
+        audioPlayer.pause();
+    }
+    currentAudio.isPlaying = false;
+
+    // Update UI
+    document.getElementById('play-audio-btn').style.display = 'inline-block';
+    document.getElementById('pause-audio-btn').style.display = 'none';
+}
+
+function stopAudio() {
+    if (audioPlayer) {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+    }
+    currentAudio.isPlaying = false;
+}
+
+===========================================

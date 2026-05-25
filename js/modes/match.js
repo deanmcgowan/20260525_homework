@@ -108,6 +108,8 @@ function checkMatch() {
         currentMatch.rightSelected.classList.add('matched');
         currentMatch.leftSelected.classList.remove('selected');
         currentMatch.rightSelected.classList.remove('selected');
+        currentMatch.leftSelected.disabled = true;
+        currentMatch.rightSelected.disabled = true;
 
         currentMatch.matches++;
         vibrate(50);
@@ -120,24 +122,29 @@ function checkMatch() {
         if (currentMatch.matches === currentMatch.pairs.length) {
             finishMatchMode();
         }
+
+        currentMatch.leftSelected = null;
+        currentMatch.rightSelected = null;
     } else {
-        // Wrong match
-        currentMatch.leftSelected.classList.add('shake');
-        currentMatch.rightSelected.classList.add('shake');
+        // Wrong match - add shake animation and incorrect color
+        currentMatch.leftSelected.classList.add('shake', 'incorrect');
+        currentMatch.rightSelected.classList.add('shake', 'incorrect');
         vibrate([50, 50, 50]);
 
-        setTimeout(() => {
-            if (currentMatch.leftSelected) {
-                currentMatch.leftSelected.classList.remove('selected', 'shake');
-            }
-            if (currentMatch.rightSelected) {
-                currentMatch.rightSelected.classList.remove('selected', 'shake');
-            }
-        }, 500);
-    }
+        // Store references before clearing
+        const leftCard = currentMatch.leftSelected;
+        const rightCard = currentMatch.rightSelected;
 
-    currentMatch.leftSelected = null;
-    currentMatch.rightSelected = null;
+        // Clear selections immediately
+        currentMatch.leftSelected = null;
+        currentMatch.rightSelected = null;
+
+        // Remove shake and incorrect styling after animation, reset to unselected state
+        setTimeout(() => {
+            leftCard.classList.remove('selected', 'shake', 'incorrect');
+            rightCard.classList.remove('selected', 'shake', 'incorrect');
+        }, 600);
+    }
 }
 
 async function finishMatchMode() {

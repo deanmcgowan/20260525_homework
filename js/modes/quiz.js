@@ -53,15 +53,24 @@ function showQuizQuestion() {
     // Show question
     document.getElementById('question-text').textContent = question.question;
 
-    // Create answer options
+    // Create answer options with randomized order
     const optionsContainer = document.getElementById('answer-options');
     optionsContainer.innerHTML = '';
 
-    question.options.forEach((option, index) => {
+    // Create array of options with their original indices
+    const shuffledOptions = question.options.map((option, index) => ({
+        text: option,
+        originalIndex: index
+    }));
+
+    // Shuffle the options array
+    shuffleArray(shuffledOptions);
+
+    shuffledOptions.forEach((option) => {
         const button = document.createElement('button');
         button.className = 'answer-option';
-        button.textContent = option;
-        button.onclick = () => selectAnswer(index);
+        button.textContent = option.text;
+        button.onclick = () => selectAnswer(option.originalIndex);
         optionsContainer.appendChild(button);
     });
 
