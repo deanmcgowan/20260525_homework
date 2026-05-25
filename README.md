@@ -4,12 +4,11 @@ En interaktiv Progressive Web App (PWA) för att lära sig om Sveriges stormakts
 
 ## 📚 Om Appen
 
-Denna app hjälper elever att lära sig om Sveriges stormaktstid genom 8 olika engagerande inlärningslägen:
+Denna app hjälper elever att lära sig om Sveriges stormaktstid genom 7 olika engagerande inlärningslägen:
 
-- **Snabbquiz** (3-5 min) - 5 slumpmässiga flervalsfrågor
-- **Tidslinjen** (5-7 min) - Dra och släpp händelser på en tidslinje
+- **Snabbquiz** (3-5 min) - 5 slumpmässiga flervalsfrågor med blandade svarsalternativ
+- **Tidslinjen** (5-7 min) - Klicka för att placera händelser på en tidslinje (optimerad för touch)
 - **Kungens Kort** (4-6 min) - Swipebara flashcards för varje kung
-- **Berättelse** (7-10 min) - Interaktiv berättelse med val
 - **Snabbmatchning** (3-4 min) - Matcha kungar med händelser
 - **Rita & Anteckna** (5-8 min) - Rita visuella minnesbilder
 - **Ljudberättelse** (5-10 min) - Lyssna på berättelser om kungarna
@@ -111,32 +110,31 @@ gcloud artifacts repositories create stormaktstiden \
 gcloud auth configure-docker europe-north1-docker.pkg.dev
 ```
 
-### Steg 3: Bygg och Pusha Docker Image
+### Lokal Docker Testning
+
+För att testa Docker-containern lokalt innan deployment till Cloud Run:
 
 ```bash
-# Bygg Docker-imagen
-docker build -t europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest .
+# Bygg imagen
+docker build -t stormaktstiden-local .
 
-# Testa imagen lokalt (valfritt)
-docker run -p 8080:8080 europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest
-# Öppna http://localhost:8080 i din webbläsare för att testa
+# Kör containern
+docker run -p 8080:8080 stormaktstiden-local
 
-# Pusha imagen till Artifact Registry
-docker push europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest
+# Öppna http://localhost:8080 i din webbläsare
 ```
 
-### Steg 4: Deploya till Cloud Run
+**OBS:** Denna app är designad för lokal Docker-körning och deployment till Google Cloud Run.
+Den publiceras inte till Docker Hub.
+
+### Steg 3: Deploya till Cloud Run (Direkt från Cloud Build)
+
+Du kan deploya direkt till Cloud Run utan att manuellt pusha till Artifact Registry:
 
 ```bash
-# Uppdatera cloudrun.yaml med ditt projekt-ID
-sed -i "s/PROJECT_ID/$PROJECT_ID/g" cloudrun.yaml
-
-# Deploya till Cloud Run
-gcloud run services replace cloudrun.yaml --region=europe-north1
-
-# Eller använd gcloud deploy direkt (enklare metod)
+# Deploya med Cloud Build (rekommenderat)
 gcloud run deploy stormaktstiden-app \
-    --image europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest \
+    --source . \
     --platform managed \
     --region europe-north1 \
     --allow-unauthenticated \
@@ -146,7 +144,9 @@ gcloud run deploy stormaktstiden-app \
     --max-instances 10
 ```
 
-### Steg 5: Få URL och Öppna Appen
+Detta kommando bygger Docker-imagen automatiskt och deployer den till Cloud Run.
+
+### Steg 4: Få URL och Öppna Appen
 
 ```bash
 # Hämta URL:en till din deployade app
@@ -165,30 +165,10 @@ gcloud run services describe stormaktstiden-app \
 När du gör ändringar i koden, uppdatera deploymentent:
 
 ```bash
-# Bygg ny version
-docker build -t europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest .
-
-# Pusha ny version
-docker push europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest
-
-# Deploya uppdateringen
+# Deploya ny version (Cloud Build bygger automatiskt)
 gcloud run deploy stormaktstiden-app \
-    --image europe-north1-docker.pkg.dev/$PROJECT_ID/stormaktstiden/app:latest \
-    --region=europe-north1
-```
-
-### Lokal Docker Testning
-
-För att testa Docker-containern lokalt innan deployment:
-
-```bash
-# Bygg imagen
-docker build -t stormaktstiden-local .
-
-# Kör containern
-docker run -p 8080:8080 stormaktstiden-local
-
-# Öppna http://localhost:8080 i din webbläsare
+    --source . \
+    --region europe-north1
 ```
 
 ### Kostnader
@@ -251,6 +231,30 @@ gcloud artifacts repositories delete stormaktstiden --location=europe-north1
     ├── icon-192.svg       # App-ikon 192x192
     └── icon-512.svg       # App-ikon 512x512
 ```
+
+## 🎧 Ljudberättelser
+
+Appen inkluderar ett ljudberättelse-läge där elever kan lyssna på berättelser om de fem kungarna.
+
+### Nuvarande Implementation
+För närvarande använder appen Web Speech API för text-till-tal, vilket ger varierande kvalitet
+för svenska texter beroende på webbläsare och enhet.
+
+### Rekommenderad Implementation (Högkvalitativ Svenska)
+För bästa ljudkvalitet rekommenderas att generera förinspelade ljudfiler med en professionell
+svensk TTS-tjänst:
+
+1. **Se filen `audio_transcript.txt`** för kompletta transkript av alla ljudberättelser
+2. **Rekommenderade TTS-tjänster:**
+   - Google Cloud Text-to-Speech (sv-SE-Wavenet-A eller sv-SE-Wavenet-C)
+   - Amazon Polly (Astrid eller Elin)
+   - Microsoft Azure Speech (sv-SE-SofieNeural eller sv-SE-MattiasNeural)
+   - ElevenLabs (Svensk flerspråkig röst)
+
+3. **När du har genererat ljudfilerna:**
+   - Spara dem i mappen `/assets/audio/`
+   - Uppdatera `js/modes/audio.js` enligt instruktionerna i `audio_transcript.txt`
+   - Filnamn: `gustaf_ii_adolf.mp3`, `kristina.mp3`, `karl_x_gustav.mp3`, `karl_xi.mp3`, `karl_xii.mp3`
 
 ## 💾 Datalagring
 

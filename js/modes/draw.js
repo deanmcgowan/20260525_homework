@@ -123,42 +123,47 @@ function changeColor(color) {
     });
 }
 
-async function saveDrawing() {
-    // Convert canvas to data URL
-    const dataURL = currentDrawing.canvas.toDataURL('image/png');
+async function handleSaveDrawing() {
+    try {
+        // Convert canvas to data URL
+        const dataURL = currentDrawing.canvas.toDataURL('image/png');
 
-    // Save to storage
-    await saveDrawing(dataURL, currentDrawing.currentPrompt);
+        // Save to storage using the storage.js function
+        await saveDrawing(dataURL, currentDrawing.currentPrompt);
 
-    // Complete mode
-    await completeMode('draw');
+        // Complete mode
+        await completeMode('draw');
 
-    // Award stars
-    await addStars(2);
+        // Award stars
+        await addStars(2);
 
-    // Update stats
-    await updateStatsDisplay();
+        // Update stats
+        await updateStatsDisplay();
 
-    // Check achievements
-    const progress = await getProgress();
-    const achievements = await checkAchievements(progress);
+        // Check achievements
+        const progress = await getProgress();
+        const achievements = await checkAchievements(progress);
 
-    if (achievements.length > 0) {
-        showConfetti();
-    }
-
-    // Show success message
-    showToast('🎨 Anteckning sparad! +2 stjärnor', 'success');
-    vibrate(50);
-
-    // Option to continue or go back
-    setTimeout(() => {
-        if (confirm('Vill du rita en till?')) {
-            initDrawMode();
-        } else {
-            showScreen('home-screen');
+        if (achievements.length > 0) {
+            showConfetti();
         }
-    }, 1500);
+
+        // Show success message
+        showToast('🎨 Anteckning sparad! +2 stjärnor', 'success');
+        vibrate(50);
+
+        // Option to continue or go back
+        setTimeout(() => {
+            if (confirm('Vill du rita en till?')) {
+                initDrawMode();
+            } else {
+                showScreen('home-screen');
+            }
+        }, 1500);
+    } catch (error) {
+        console.error('Error saving drawing:', error);
+        showToast('⚠️ Kunde inte spara anteckning', 'error');
+    }
 }
 
 // Event listeners
@@ -182,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const saveBtn = document.getElementById('save-drawing-btn');
     if (saveBtn) {
-        saveBtn.addEventListener('click', saveDrawing);
+        saveBtn.addEventListener('click', handleSaveDrawing);
     }
 
     // Color tool buttons

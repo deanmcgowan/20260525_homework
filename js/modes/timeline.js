@@ -39,13 +39,10 @@ function renderTimeline() {
         const contentDiv = document.createElement('div');
         contentDiv.className = 'timeline-content drop-zone';
         contentDiv.dataset.year = event.year;
-        contentDiv.textContent = '📍 Släpp här';
+        contentDiv.textContent = '📍 Välj händelse nedan';
 
-        // Add drag and drop handlers
-        contentDiv.addEventListener('dragover', handleDragOver);
-        contentDiv.addEventListener('drop', handleDrop);
-        contentDiv.addEventListener('touchmove', handleTouchMove);
-        contentDiv.addEventListener('touchend', handleTouchEnd);
+        // Add click handler for mobile-friendly interaction
+        contentDiv.addEventListener('click', () => handleDropZoneClick(contentDiv));
 
         eventDiv.appendChild(yearDiv);
         eventDiv.appendChild(dotDiv);
@@ -64,20 +61,81 @@ function renderDraggableEvents() {
     shuffled.forEach((event, index) => {
         const eventDiv = document.createElement('div');
         eventDiv.className = 'draggable-event';
-        eventDiv.draggable = true;
         eventDiv.dataset.year = event.year;
         eventDiv.dataset.event = event.event;
         eventDiv.textContent = event.event;
 
-        // Drag handlers
-        eventDiv.addEventListener('dragstart', handleDragStart);
-        eventDiv.addEventListener('touchstart', handleTouchStart);
+        // Use click/tap instead of drag for better mobile support
+        eventDiv.addEventListener('click', () => handleEventClick(eventDiv));
 
         container.appendChild(eventDiv);
     });
 }
 
 let draggedElement = null;
+let selectedEvent = null;
+
+function handleEventClick(eventDiv) {
+    // If an event is already selected, deselect it
+    if (selectedEvent === eventDiv) {
+        eventDiv.classList.remove('selected');
+        selectedEvent = null;
+        // Deselect all drop zones
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.classList.remove('ready-for-drop');
+        });
+        return;
+    }
+
+    // Deselect previously selected event
+    if (selectedEvent) {
+        selectedEvent.classList.remove('selected');
+    }
+
+    // Select this event
+    selectedEvent = eventDiv;
+    eventDiv.classList.add('selected');
+
+    // Highlight drop zones
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        if (!zone.dataset.placedYear) {
+            zone.classList.add('ready-for-drop');
+            zone.textContent = '👆 Tryck här för att placera';
+        }
+    });
+
+    vibrate(30);
+}
+
+function handleDropZoneClick(dropZone) {
+    // Only allow placement if a zone hasn't been filled and an event is selected
+    if (dropZone.dataset.placedYear || !selectedEvent) {
+        return;
+    }
+
+    // Place the selected event in this drop zone
+    dropZone.textContent = selectedEvent.dataset.event;
+    dropZone.dataset.placedYear = selectedEvent.dataset.year;
+    dropZone.style.background = '#EFF6FF';
+    dropZone.classList.remove('ready-for-drop');
+
+    // Remove the event from the draggable list
+    selectedEvent.remove();
+    selectedEvent = null;
+
+    // Reset all drop zone highlights
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('ready-for-drop');
+        if (!zone.dataset.placedYear) {
+            zone.textContent = '📍 Välj händelse nedan';
+        }
+    });
+
+    vibrate(50);
+
+    // Check if all placed
+    checkTimelineCompletion();
+}
 
 function handleDragStart(e) {
     draggedElement = e.target;
@@ -116,7 +174,7 @@ function handleDrop(e) {
     return false;
 }
 
-// Touch handlers for mobile
+// Touch handlers for mobile (kept for backwards compatibility but simplified)
 let touchedElement = null;
 let touchStartPos = {};
 
