@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stormaktstiden-v1';
+const CACHE_NAME = 'stormaktstiden-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -16,7 +16,12 @@ const urlsToCache = [
   '/js/modes/draw.js',
   '/js/modes/audio.js',
   '/js/modes/test.js',
-  '/js/progress.js'
+  '/js/progress.js',
+  '/assets/audio/gustaf_ii_adolf.mp3',
+  '/assets/audio/kristina.mp3',
+  '/assets/audio/karl_x_gustav.mp3',
+  '/assets/audio/karl_xi.mp3',
+  '/assets/audio/karl_xii.mp3'
 ];
 
 self.addEventListener('install', event => {
