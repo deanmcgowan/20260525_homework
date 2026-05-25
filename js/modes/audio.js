@@ -47,59 +47,58 @@ function showAudioStory() {
     stopAudio();
 }
 
-function playAudio() {
-    if (!window.speechSynthesis) {
-        showToast('⚠️ Text-till-tal stöds inte i din webbläsare', 'error');
-        return;
-    }
+let audioPlayer = null;
 
+function playAudio() {
     const story = currentAudio.stories[currentAudio.currentIndex];
 
-    // Create utterance
-    currentAudio.utterance = new SpeechSynthesisUtterance(story.text);
-    currentAudio.utterance.lang = 'sv-SE';
-    currentAudio.utterance.rate = 0.85; // Slightly slower for better comprehension
-    currentAudio.utterance.pitch = 1;
+    // Skapa eller återanvänd audio-element
+    if (!audioPlayer) {
+        audioPlayer = new Audio();
+        audioPlayer.onended = () => {
+            currentAudio.isPlaying = false;
+            document.getElementById('play-audio-btn').style.display = 'inline-block';
+            document.getElementById('pause-audio-btn').style.display = 'none';
 
-    // Event handlers
-    currentAudio.utterance.onend = () => {
-        currentAudio.isPlaying = false;
-        document.getElementById('play-audio-btn').style.display = 'inline-block';
-        document.getElementById('pause-audio-btn').style.display = 'none';
+            // Auto-advance to next story
+            if (currentAudio.currentIndex < currentAudio.stories.length - 1) {
+                setTimeout(() => {
+                    currentAudio.currentIndex++;
+                    showAudioStory();
+                }, 1500);
+            }
+        };
 
-        // Auto-advance to next story
-        if (currentAudio.currentIndex < currentAudio.stories.length - 1) {
-            setTimeout(() => {
-                currentAudio.currentIndex++;
-                showAudioStory();
-            }, 1500);
-        }
+        audioPlayer.onerror = () => {
+            showToast('⚠️ Ett fel uppstod vid uppspelning', 'error');
+            currentAudio.isPlaying = false;
+            document.getElementById('play-audio-btn').style.display = 'inline-block';
+            document.getElementById('pause-audio-btn').style.display = 'none';
+        };
+    }
+
+    // Sätt rätt ljudfil baserat på kingId
+    const audioFiles = {
+        'gustaf-ii-adolf': 'assets/audio/gustaf_ii_adolf.mp3',
+        'kristina': 'assets/audio/kristina.mp3',
+        'karl-x-gustav': 'assets/audio/karl_x_gustav.mp3',
+        'karl-xi': 'assets/audio/karl_xi.mp3',
+        'karl-xii': 'assets/audio/karl_xii.mp3'
     };
 
-    currentAudio.utterance.onerror = () => {
-        showToast('⚠️ Ett fel uppstod vid uppspelning', 'error');
-        currentAudio.isPlaying = false;
-        document.getElementById('play-audio-btn').style.display = 'inline-block';
-        document.getElementById('pause-audio-btn').style.display = 'none';
-    };
-
-    // Start playing
-    window.speechSynthesis.speak(currentAudio.utterance);
+    audioPlayer.src = audioFiles[story.kingId];
+    audioPlayer.play();
     currentAudio.isPlaying = true;
 
     // Update UI
     document.getElementById('play-audio-btn').style.display = 'none';
     document.getElementById('pause-audio-btn').style.display = 'inline-block';
-
-    // Highlight text as it's being read (optional enhancement)
-    highlightText();
 }
 
 function pauseAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+    if (audioPlayer) {
+        audioPlayer.pause();
     }
-
     currentAudio.isPlaying = false;
 
     // Update UI
@@ -108,8 +107,9 @@ function pauseAudio() {
 }
 
 function stopAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+    if (audioPlayer) {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
     }
     currentAudio.isPlaying = false;
 }
