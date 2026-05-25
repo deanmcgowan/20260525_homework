@@ -58,19 +58,24 @@ function showQuizQuestion() {
     optionsContainer.innerHTML = '';
 
     // Create array of options with their original indices
-    const shuffledOptions = question.options.map((option, index) => ({
+    let shuffledOptions = question.options.map((option, index) => ({
         text: option,
         originalIndex: index
     }));
 
     // Shuffle the options array
-    shuffleArray(shuffledOptions);
+    shuffledOptions = shuffleArray(shuffledOptions);
 
-    shuffledOptions.forEach((option) => {
+    // Store shuffled options for answer checking
+    currentQuiz.currentShuffledOptions = shuffledOptions;
+
+    shuffledOptions.forEach((option, displayIndex) => {
         const button = document.createElement('button');
         button.className = 'answer-option';
         button.textContent = option.text;
-        button.onclick = () => selectAnswer(option.originalIndex);
+        button.dataset.originalIndex = option.originalIndex;
+        button.dataset.displayIndex = displayIndex;
+        button.onclick = () => selectAnswer(option.originalIndex, displayIndex);
         optionsContainer.appendChild(button);
     });
 
@@ -79,17 +84,23 @@ function showQuizQuestion() {
     document.querySelector('.quiz-content').style.display = 'block';
 }
 
-function selectAnswer(selectedIndex) {
+function selectAnswer(selectedOriginalIndex, selectedDisplayIndex) {
     const question = currentQuiz.questions[currentQuiz.currentIndex];
-    const correct = selectedIndex === question.correct;
+    const correct = selectedOriginalIndex === question.correct;
 
     // Visual feedback
     const options = document.querySelectorAll('.answer-option');
+
+    // Find the display index of the correct answer
+    const correctDisplayIndex = currentQuiz.currentShuffledOptions.findIndex(
+        opt => opt.originalIndex === question.correct
+    );
+
     options.forEach((option, index) => {
         option.disabled = true;
-        if (index === question.correct) {
+        if (index === correctDisplayIndex) {
             option.classList.add('correct');
-        } else if (index === selectedIndex && !correct) {
+        } else if (index === selectedDisplayIndex && !correct) {
             option.classList.add('incorrect');
             option.classList.add('shake');
         }
