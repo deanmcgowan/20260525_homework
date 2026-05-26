@@ -156,11 +156,21 @@ function showTestReview() {
         const questionDiv = document.createElement('div');
         questionDiv.style.cssText = 'margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #E5E7EB;';
 
-        questionDiv.innerHTML = `
-            <p style="font-weight: 600; margin-bottom: 8px;">${index + 1}. ${question.question}</p>
-            <p style="color: #6B7280; margin-bottom: 8px;">Ditt svar: ${answer}</p>
-            <p style="color: #10B981; font-size: 14px;">Facit: ${question.answer}</p>
-        `;
+        const questionText = document.createElement('p');
+        questionText.style.cssText = 'font-weight: 600; margin-bottom: 8px;';
+        questionText.textContent = `${index + 1}. ${question.question}`;
+
+        const answerText = document.createElement('p');
+        answerText.style.cssText = 'color: #6B7280; margin-bottom: 8px;';
+        answerText.textContent = `Ditt svar: ${answer}`;
+
+        const facitText = document.createElement('p');
+        facitText.style.cssText = 'color: #10B981; font-size: 14px;';
+        facitText.textContent = `Facit: ${question.answer}`;
+
+        questionDiv.appendChild(questionText);
+        questionDiv.appendChild(answerText);
+        questionDiv.appendChild(facitText);
 
         reviewDiv.appendChild(questionDiv);
     });

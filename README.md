@@ -6,7 +6,7 @@ En interaktiv Progressive Web App (PWA) för att lära sig om Sveriges stormakts
 
 Denna app hjälper elever att lära sig om Sveriges stormaktstid genom 7 olika engagerande inlärningslägen:
 
-- **Snabbquiz** (3-5 min) - 5 slumpmässiga flervalsfrågor med blandade svarsalternativ
+- **Snabbquiz** (3-5 min) - 5 slumpmässiga flervalsfrågor med slumpmässigt blandade svarsalternativ (Fisher-Yates shuffling)
 - **Tidslinjen** (5-7 min) - Klicka för att placera händelser på en tidslinje (optimerad för touch)
 - **Kungens Kort** (4-6 min) - Swipebara flashcards för varje kung
 - **Snabbmatchning** (3-4 min) - Matcha kungar med händelser
