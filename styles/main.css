@@ -521,6 +521,7 @@ body {
     align-items: center;
     text-align: center;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow-y: auto;
 }
 
 .flashcard-front {
@@ -531,6 +532,8 @@ body {
 .flashcard-back {
     background: white;
     transform: rotateY(180deg);
+    padding: 25px;
+    justify-content: flex-start;
 }
 
 #card-title {
@@ -555,23 +558,44 @@ body {
     font-size: 16px;
     line-height: 1.8;
     color: var(--text-dark);
+    width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+#card-content h3 {
+    width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    margin-bottom: 10px;
+}
+
+#card-content p {
+    width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 #card-content ul {
     list-style: none;
     padding: 0;
+    width: 100%;
 }
 
 #card-content li {
     margin: 12px 0;
     padding-left: 25px;
     position: relative;
+    text-align: left;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 #card-content li:before {
     content: "👑";
     position: absolute;
     left: 0;
+    flex-shrink: 0;
 }
 
 .cards-progress {
