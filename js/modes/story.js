@@ -2,7 +2,7 @@
 
 let currentStory = {
     currentChapterId: 1,
-    choices Made: [],
+    choicesMade: [],
     startTime: null
 };
 
