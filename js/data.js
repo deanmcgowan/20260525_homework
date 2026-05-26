@@ -399,116 +399,116 @@ const QUIZ_TEMPLATES = [
     },
     {
         question: 'Vad kallades Gustaf II Adolf?',
-        options: ['Lejonet från Norden', 'Hjältekungen', 'Krigarkungen', 'Den vise kungen'],
-        correct: 0,
+        options: ['Hjältekungen', 'Lejonet från Norden', 'Krigarkungen', 'Den vise kungen'],
+        correct: 1,
         kingId: 'gustaf-ii-adolf'
     },
     {
         question: 'I vilket slag dog Gustaf II Adolf?',
-        options: ['Lützen', 'Poltava', 'Breitenfeld', 'Narva'],
-        correct: 0,
+        options: ['Poltava', 'Breitenfeld', 'Lützen', 'Narva'],
+        correct: 2,
         kingId: 'gustaf-ii-adolf'
     },
     {
         question: 'Hur gammal var Kristina när hon blev drottning?',
-        options: ['6 år', '12 år', '15 år', '18 år'],
-        correct: 0,
+        options: ['12 år', '15 år', '18 år', '6 år'],
+        correct: 3,
         kingId: 'kristina'
     },
     {
         question: 'Vad gjorde Kristina år 1654?',
-        options: ['Abdikerade', 'Gifte sig', 'Dog', 'Började ett krig'],
-        correct: 0,
+        options: ['Gifte sig', 'Abdikerade', 'Dog', 'Började ett krig'],
+        correct: 1,
         kingId: 'kristina'
     },
     {
         question: 'När slutade det trettioåriga kriget?',
-        options: ['1648', '1632', '1654', '1658'],
-        correct: 0,
+        options: ['1632', '1654', '1648', '1658'],
+        correct: 2,
         kingId: 'kristina'
     },
     {
         question: 'Vilka områden fick Sverige från Danmark 1658?',
-        options: ['Skåne, Blekinge, Halland och Bohuslän', 'Finland och Norge', 'Polen och Baltikum', 'Island och Grönland'],
-        correct: 0,
+        options: ['Finland och Norge', 'Polen och Baltikum', 'Island och Grönland', 'Skåne, Blekinge, Halland och Bohuslän'],
+        correct: 3,
         kingId: 'karl-x-gustav'
     },
     {
         question: 'Hur dog Karl X Gustav?',
-        options: ['Lunginflammation', 'I strid', 'Gift', 'Olycka'],
-        correct: 0,
+        options: ['I strid', 'Lunginflammation', 'Gift', 'Olycka'],
+        correct: 1,
         kingId: 'karl-x-gustav'
     },
     {
         question: 'Vad var freden i Roskilde?',
-        options: ['Fred mellan Sverige och Danmark 1658', 'Fred som avslutade trettioåriga kriget', 'Fred efter Karl XII:s död', 'Fred mellan Sverige och Ryssland'],
-        correct: 0,
+        options: ['Fred som avslutade trettioåriga kriget', 'Fred efter Karl XII:s död', 'Fred mellan Sverige och Danmark 1658', 'Fred mellan Sverige och Ryssland'],
+        correct: 2,
         kingId: 'karl-x-gustav'
     },
     {
         question: 'Hur gammal var Karl XI när han blev kung?',
-        options: ['4 år', '6 år', '15 år', '17 år'],
-        correct: 0,
+        options: ['6 år', '15 år', '4 år', '17 år'],
+        correct: 2,
         kingId: 'karl-xi'
     },
     {
         question: 'Vad införde Karl XI?',
-        options: ['Envälde', 'Demokrati', 'Republik', 'Monarki'],
-        correct: 0,
+        options: ['Demokrati', 'Republik', 'Monarki', 'Envälde'],
+        correct: 3,
         kingId: 'karl-xi'
     },
     {
         question: 'Vilket år infördes lag om läskunnighet?',
-        options: ['1686', '1648', '1700', '1718'],
-        correct: 0,
+        options: ['1648', '1686', '1700', '1718'],
+        correct: 1,
         kingId: 'karl-xi'
     },
     {
         question: 'Hur gammal var Karl XII när han blev kung?',
-        options: ['15 år', '17 år', '12 år', '18 år'],
-        correct: 0,
+        options: ['17 år', '12 år', '15 år', '18 år'],
+        correct: 2,
         kingId: 'karl-xii'
     },
     {
         question: 'När började det stora nordiska kriget?',
-        options: ['1700', '1697', '1709', '1718'],
-        correct: 0,
+        options: ['1697', '1709', '1718', '1700'],
+        correct: 3,
         kingId: 'karl-xii'
     },
     {
         question: 'Vilket slag förlorade Sverige 1709?',
-        options: ['Poltava', 'Lützen', 'Narva', 'Breitenfeld'],
-        correct: 0,
+        options: ['Lützen', 'Poltava', 'Narva', 'Breitenfeld'],
+        correct: 1,
         kingId: 'karl-xii'
     },
     {
         question: 'När dog Karl XII?',
-        options: ['1718', '1709', '1697', '1700'],
-        correct: 0,
+        options: ['1709', '1697', '1718', '1700'],
+        correct: 2,
         kingId: 'karl-xii'
     },
     {
         question: 'Var dog Karl XII?',
-        options: ['Vid Fredrikstens fästning i Norge', 'Vid Poltava i Ryssland', 'I Stockholm', 'Vid Narva'],
-        correct: 0,
+        options: ['Vid Poltava i Ryssland', 'I Stockholm', 'Vid Narva', 'Vid Fredrikstens fästning i Norge'],
+        correct: 3,
         kingId: 'karl-xii'
     },
     {
         question: 'Vad hände när Karl XII dog?',
-        options: ['Stormaktstiden tog slut', 'Sverige vann kriget', 'Ett nytt krig började', 'Sverige blev större'],
-        correct: 0,
+        options: ['Sverige vann kriget', 'Stormaktstiden tog slut', 'Ett nytt krig började', 'Sverige blev större'],
+        correct: 1,
         kingId: 'karl-xii'
     },
     {
         question: 'Vilket år sjönk skeppet Vasa?',
-        options: ['1628', '1611', '1632', '1648'],
-        correct: 0,
+        options: ['1611', '1632', '1628', '1648'],
+        correct: 2,
         kingId: 'gustaf-ii-adolf'
     },
     {
         question: 'Vem var Axel Oxenstierna?',
-        options: ['Gustaf II Adolfs viktigaste rådgivare', 'En kung', 'En soldat', 'En präst'],
-        correct: 0,
+        options: ['En kung', 'En soldat', 'En präst', 'Gustaf II Adolfs viktigaste rådgivare'],
+        correct: 3,
         kingId: 'gustaf-ii-adolf'
     }
 ];
