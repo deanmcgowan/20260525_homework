@@ -624,12 +624,34 @@ const DRAWING_PROMPTS = [
     'Rita symboler för de 5 kungarna'
 ];
 
-// Audio content - text that can be read aloud using Web Speech API
-const AUDIO_STORIES = KINGS.map(king => ({
-    kingId: king.id,
-    title: king.name,
-    text: `${king.name}, även känd som ${king.nickname}, var kung av Sverige mellan ${king.years}. ${king.summary} ${king.facts.join('. ')}.`
-}));
+// Audio content - matches the transcripts in audio_transcript.txt
+const AUDIO_STORIES = [
+    {
+        kingId: 'gustaf-ii-adolf',
+        title: 'Gustaf II Adolf',
+        text: 'Gustaf den andre Adolf, även känd som Lejonet från Norden, var kung av Sverige mellan sexton elva och sexton trettiotvå. Han blev kung när han bara var sjutton år och förde Sverige in i trettioåriga kriget på protestanternas sida.\n\nGustaf den andre Adolf var känd som "Lejonet från Norden". Han förvandlade Sverige till en stormakt genom att modernisera den svenska armén med nya taktiker och vapen. Han vann flera stora slag i trettioåriga kriget, särskilt den stora segern vid Breitenfeld år sexton trettioett.\n\nTyvärr dog Gustaf den andre Adolf i slaget vid Lützen år sexton trettiotvå. Han var en av Sveriges mest kända kungar och hans insatser gjorde Sverige till en mäktig stormakt i Europa.'
+    },
+    {
+        kingId: 'kristina',
+        title: 'Drottning Kristina',
+        text: 'Drottning Kristina var Sveriges drottning mellan sexton trettiotvå och sexton femtiofyra. Hon blev drottning när hon bara var sex år gammal efter att hennes far Gustaf den andre Adolf dog i slaget vid Lützen.\n\nKristina var mycket intelligent och intresserad av konst, vetenskap och filosofi. Under hennes tid som drottning främjade hon kulturen i Sverige. År sexton fyrtiåtta avslutades trettioåriga kriget med Westfaliska freden, och Sverige fick viktiga områden i Tyskland.\n\nÅr sexton femtiofyra abdikerade Kristina - det betyder att hon lämnade tronen frivilligt. Hon lämnade Sverige och konverterade till katolicismen. Hennes kusin Karl den tionde Gustav blev kung efter henne. Kristina gifte sig aldrig.'
+    },
+    {
+        kingId: 'karl-x-gustav',
+        title: 'Karl X Gustav',
+        text: 'Karl den tionde Gustav, även känd som Krigarkungen, var kung av Sverige mellan sexton femtiofyra och sexton sextio. Han var Kristinas kusin som blev kung när hon abdikerade.\n\nKarl den tionde Gustav var känd för sina danska krig. Den mest berömda händelsen var när den svenska armén gick över Stora Bält när det var fruset - något som var mycket vågat och modigt!\n\nÅr sexton femtioåtta slöts freden i Roskilde. Genom denna fred fick Sverige Skåne, Blekinge, Halland och Bohuslän från Danmark. Detta expanderade Sveriges territorium markant. Karl den tionde Gustav dog av lunginflammation år sexton sextio.'
+    },
+    {
+        kingId: 'karl-xi',
+        title: 'Karl XI',
+        text: 'Karl den elfte, även känd som Den envåldige härskaren, var kung av Sverige mellan sexton sextio och sexton nittiosju. Han blev kung när han bara var fyra år gammal, så förmyndare styrde landet först tills han blev äldre.\n\nKarl den elfte införde envälde, vilket också kallas absolutism. Det betydde att kungen fick all makt och inte behövde lyssna på riksdagen. Han tog tillbaka mark från adeln genom reduktionen, vilket minskade adelns makt.\n\nEn viktig reform var att Karl den elfte ville att alla svenskar skulle lära sig läsa. År sexton åttiåsex infördes en lag om läskunnighet. Präster kontrollerade att folk kunde läsa genom så kallade husförhör. Han stärkte också den svenska armén genom indelningsverket.'
+    },
+    {
+        kingId: 'karl-xii',
+        title: 'Karl XII',
+        text: 'Karl den tolfte, även känd som Hjältekungen, var kung av Sverige mellan sexton nittiåsju och sjutton arton. Han blev kung när han var femton år gammal och är känd som en krigarkunng.\n\nÅr sjutton hundra började det stora nordiska kriget när Danmark, Polen och Ryssland attackerade Sverige samtidigt. Karl den tolfte var en mycket skicklig militär strateg och vann flera tidiga segrar.\n\nMen år sjutton hundra nio förlorade Sverige det viktiga slaget vid Poltava mot Ryssland. Detta var början på slutet för Sveriges stormaktstid. Karl den tolfte bodde många år utomlands efter detta.\n\nDen trettionde november år sjutton arton dog Karl den tolfte vid Fredrikstens fästning i Norge. Med hans död tog Sveriges stormaktstid slut. Sverige förlorade mycket territorium och makten gick från kungen tillbaka till riksdagen.'
+    }
+];
 
 // Achievements system
 const ACHIEVEMENTS = [
